@@ -5,6 +5,7 @@
 const moment = require("moment");
 
 const db = require("../db");
+const Customer = require("./customer");
 
 /** A reservation for a party */
 
@@ -38,6 +39,24 @@ class Reservation {
     );
 
     return results.rows.map(row => new Reservation(row));
+  }
+
+  /** show top 10 customers with the most reservations */
+
+  static async showTopTenCustomers() {
+    const topTenCustomers = await db.query(
+      `SELECT R.customer_id, COUNT(R.id) AS reservationCount
+      FROM reservations AS R
+      JOIN customers AS C 
+      ON R.customer_id = C.id
+      GROUP BY R.customer_id
+      ORDER BY reservationCount DESC
+      LIMIT 10`
+    );
+
+    const customerIds = topTenCustomers.rows.map(c => c.customer_id);
+
+    return customerIds.rows.map(id => new Customer.get(id));
   }
 
   /** save this reservation */

@@ -51,6 +51,14 @@ router.post("/add/", async function (req, res, next) {
   return res.redirect(`/${customer.id}/`);
 });
 
+/** Show top ten customers that make the most reservations. */
+router.get('/top-ten/', async function (req, res, next) {
+  const topTenCustomers = await Reservation.showTopTenCustomers();
+
+  debugger;
+  return res.render("top_ten_customers.html", {topTenCustomers});
+})
+
 /** Show a customer, given their ID. */
 
 router.get("/:id/", async function (req, res, next) {
