@@ -56,6 +56,22 @@ class Customer {
     return new Customer(customer);
   }
 
+  /** search all customers according the search terms */
+  static async search(terms) {
+    const searchResults = await db.query(
+      `SELECT id,
+              first_name AS "firstName",
+              last_name  AS "lastName",
+              phone,
+              notes
+        FROM customers
+        WHERE concat(first_name, " ", last_name) ILIKE $1
+        ORDER BY last_name, first_name`, [`%${terms}%`]
+    );
+
+    return searchResults.rows.map(c => new Customer(c));
+  }
+
   /** get all reservations for this customer. */
 
   async getReservations() {
@@ -96,9 +112,6 @@ class Customer {
   fullName() {  
     return (`${this.firstName} ${this.lastName}`);
   }
-
-
-
 
 }
 
