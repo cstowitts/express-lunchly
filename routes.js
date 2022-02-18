@@ -82,4 +82,11 @@ router.post("/:id/add-reservation/", async function (req, res, next) {
   return res.redirect(`/${customerId}/`);
 });
 
+router.get('/', async function (req, res, next) {
+  const search = req.query.search;
+  debugger;
+
+
+})
+
 module.exports = router;
