@@ -65,7 +65,7 @@ class Customer {
               phone,
               notes
         FROM customers
-        WHERE concat(first_name, " ", last_name) ILIKE $1
+        WHERE concat(first_name, ' ', last_name) ILIKE $1
         ORDER BY last_name, first_name`, [`%${terms}%`]
     );
 

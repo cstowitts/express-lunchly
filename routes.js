@@ -17,6 +17,24 @@ router.get("/", async function (req, res, next) {
   return res.render("customer_list.html", { customers });
 });
 
+/** Search for a customer by first and last name, renders search results page */
+
+router.get('/search', async function (req, res, next) {
+    const terms = req.query.search;
+    if (!terms) {
+      throw new NotFoundError(
+        `Please type customer first name and last name to search!`);
+    }
+  
+    const customerSearchResults = await Customer.search(terms);
+    if(!customerSearchResults) {
+      throw new NotFoundError(`Couldn't find matched customers according the given
+      first name and last name!`);
+    }
+    
+    return res.render("customer_search.html", { customerSearchResults });
+  });
+
 /** Form to add a new customer. */
 
 router.get("/add/", async function (req, res, next) {
@@ -37,8 +55,7 @@ router.post("/add/", async function (req, res, next) {
 
 router.get("/:id/", async function (req, res, next) {
   const customer = await Customer.get(req.params.id);
-  debugger;
-
+ 
   const reservations = await customer.getReservations();
 
   return res.render("customer_detail.html", { customer, reservations });
@@ -69,6 +86,7 @@ router.post("/:id/edit/", async function (req, res, next) {
 
 router.post("/:id/add-reservation/", async function (req, res, next) {
   const customerId = req.params.id;
+  
   const startAt = new Date(req.body.startAt);
   const numGuests = req.body.numGuests;
   const notes = req.body.notes;
@@ -84,20 +102,5 @@ router.post("/:id/add-reservation/", async function (req, res, next) {
   return res.redirect(`/${customerId}/`);
 });
 
-router.get('/search', function (req, res, next) {
-  const terms = req.query.search;
-  if (!search) {
-    throw new NotFoundError(`
-    Please type costomer first name and last name to search!`);
-  }
-
-  const customerSearchResults = Customer.search(terms);
-  if(!customerSearchResults) {
-    throw new NotFoundError(`Couldn't find matched customers according the given
-    first name and last name!`);
-  }
-  
-  return res.render("customer_search.html", customerSearchResults);
-});
 
 module.exports = router;
