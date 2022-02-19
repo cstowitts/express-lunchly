@@ -3,7 +3,8 @@
 /** Customer for Lunchly */
 
 const db = require("../db");
-const Reservation = require("./reservation");
+const { NotFoundError } = require("../expressError");
+
 
 /** Customer of the restaurant. */
 
@@ -75,7 +76,33 @@ class Customer {
   /** get all reservations for this customer. */
 
   async getReservations() {
+    const Reservation = require("./reservation");
     return await Reservation.getReservationsForCustomer(this.id);
+  }
+
+  /** show top 10 customers with the most reservations */
+    //move to customer model, about customers (when we query customer data, easier to hand back customer instances)
+  static async showTopTenCustomers() {
+    const topTenCustomers = await db.query(
+      `SELECT R.customer_id, 
+              C.id,
+              C.first_name AS "firstName",
+              C.last_name  AS "lastName",
+              C.phone,
+              C.notes,
+              COUNT(*) as reservationCount
+      FROM reservations AS R
+      JOIN customers AS C 
+      ON R.customer_id = C.id
+      GROUP BY C.id, R.customer_id
+      ORDER BY reservationCount DESC
+      LIMIT 10`
+    );
+
+    const topTen = topTenCustomers.rows.map(c => new Customer(c));
+    //it knows which values to instatiate Customers with bc of obj destructuring--the keys of the topTenCustomers objs map to the required args to instatiate a Customer
+
+    return topTen;
   }
 
   /** save this customer. */
